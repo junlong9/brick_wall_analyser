@@ -35,6 +35,7 @@ def process_image(image_path):
     contours = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = contours[0] if len(contours) == 2 else contours[1]
 
+    image_number = 1
     # Loop over each contour found
     for contour in contours:
         # Get the bounding box for each contour
@@ -43,8 +44,12 @@ def process_image(image_path):
         # Draw a rectangle around each detected object (brick)
         cv2.rectangle(image, (x, y), (x + w, y + h), (36, 255, 12), 2)
 
-        # Extract the region of interest (ROI) corresponding to each brick
-        ROI = original[y:y + h, x:x + w]
+        # # Extract the region of interest (ROI) corresponding to each brick
+        # ROI = original[y:y + h, x:x + w]
+
+        # # Create image of each brick
+        # cv2.imwrite("ROI_{}.png".format(image_number), ROI)
+        # image_number += 1
 
     # Display the original image with detected bricks highlighted
     cv2.imshow('Original Image', image)
@@ -61,4 +66,4 @@ def process_image(image_path):
 
 
 # Example usage:
-process_image('brick.jpg')
+process_image('Jonah/brick.jpg')  # Fix file direction if needed
