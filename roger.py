@@ -19,12 +19,32 @@ class Brick:
         min_y = min(y_coords)
         max_y = max(y_coords)
 
-        self.top_left = (min_x, max_y)
-        self.top_right = (max_x, max_y)
-        self.bottom_left = (min_x, min_y)
-        self.bottom_right = (max_x, min_y)
+        self.top_left = (min_x,min_y)
+        self.top_right = (max_x, min_y)
+        self.bottom_left = (min_x, max_y)
+        self.bottom_right = (max_x, max_y)
 
         self.image = image
+
+    def calculate_brightness(self):
+        # Extract the region defined by the brick's coordinates
+        roi = self.image[self.top_left[1]:self.bottom_left[1], self.top_left[0]:self.top_right[0]]
+
+        # Check if the ROI is empty
+        if roi.size == 0:
+            raise ValueError("ROI is empty. Check brick coordinates.")
+
+        # Convert to grayscale
+        gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+        # Calculate the average brightness
+        average_brightness = np.mean(gray_roi)
+
+        return average_brightness
+
+
+
+
 
 
 def process_image(image_path):
@@ -76,7 +96,6 @@ def process_image(image_path):
 
 
 
-
 # Read the image once
 image = cv2.imread("jonah.jpg")
 
@@ -86,6 +105,9 @@ all_boxes = process_image("jonah.jpg")
 # Create Brick objects
 bricks = [Brick(*box, image=image) for box in all_boxes]
 
-# Print top-left coordinates of each brick
+# Print top-left coordinates and brightness of each brick
 for brick in bricks:
-    print(brick.top_left)
+    try:
+        print(f"Brightness: {brick.calculate_brightness()}")
+    except ValueError as e:
+        print(e)
