@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 def process_image(image_path):
     """
     Process an image to detect and highlight individual bricks based on contours.
@@ -38,18 +37,29 @@ def process_image(image_path):
     image_number = 1
     # Loop over each contour found
     for contour in contours:
-        # Get the bounding box for each contour
-        x, y, w, h = cv2.boundingRect(contour)
+        # Get the minimum area bounding rectangle
+        rect = cv2.minAreaRect(contour)
+        box = cv2.boxPoints(rect)
+        box = np.int32(box)  # Convert the box points to integers
 
-        # Draw a rectangle around each detected object (brick)
-        cv2.rectangle(image, (x, y), (x + w, y + h), (36, 255, 12), 2)
+        # Convert the box points to a list of (x, y) tuples with simple integers
+        box_points = [(int(point[0]), int(point[1])) for point in box]
+        print(f"Rectangle {image_number} points: {box_points}")
+
+        # Draw the rectangle using the box points
+        cv2.drawContours(image, [box], 0, (36, 255, 12), 2)
+
+        # Draw circles at each point in the rectangle
+        for point in box_points:
+            cv2.circle(image, point, 10, (0, 0, 255), -1)  # Red circle with radius 10
 
         # # Extract the region of interest (ROI) corresponding to each brick
+        # x, y, w, h = cv2.boundingRect(contour)
         # ROI = original[y:y + h, x:x + w]
-
-        # # Create image of each brick
-        # cv2.imwrite("ROI_{}.png".format(image_number), ROI)
-        # image_number += 1
+        #
+        # # Save each brick image
+        # cv2.imwrite(f"ROI_{image_number}.png", ROI)
+        image_number += 1
 
     # Display the original image with detected bricks highlighted
     cv2.imshow('Original Image', image)
@@ -64,6 +74,5 @@ def process_image(image_path):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-
 # Example usage:
-process_image('Jonah/brick.jpg')  # Fix file direction if needed
+process_image('Jonah/old_red_sandstock_bricks.jpg')  # Fix file direction if needed
