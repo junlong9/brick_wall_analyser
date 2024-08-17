@@ -4,6 +4,7 @@ import numpy as np
 def process_image(image_path):
     """
     Process an image to detect and highlight individual bricks based on contours.
+    If the image has more black areas than white, it inverts the image.
 
     Parameters:
     image_path (str): Path to the image file.
@@ -25,10 +26,14 @@ def process_image(image_path):
     thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
     # Define a kernel for morphological operations to remove small noise
-    kernel = np.ones((40, 40), np.uint8)
+    kernel = np.ones((30, 30), np.uint8)
 
     # Perform morphological opening to clean up the binary image
     opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+
+    # Check if the image should be inverted
+    if np.mean(opening) < 150:  # If the average intensity is less than 127, invert
+        gray = cv2.bitwise_not(opening)
 
     # Find contours of the objects in the cleaned binary image
     contours = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -53,12 +58,6 @@ def process_image(image_path):
         for point in box_points:
             cv2.circle(image, point, 10, (0, 0, 255), -1)  # Red circle with radius 10
 
-        # # Extract the region of interest (ROI) corresponding to each brick
-        # x, y, w, h = cv2.boundingRect(contour)
-        # ROI = original[y:y + h, x:x + w]
-        #
-        # # Save each brick image
-        # cv2.imwrite(f"ROI_{image_number}.png", ROI)
         image_number += 1
 
     # Display the original image with detected bricks highlighted
@@ -75,4 +74,4 @@ def process_image(image_path):
     cv2.destroyAllWindows()
 
 # Example usage:
-process_image('Jonah/old_red_sandstock_bricks.jpg')  # Fix file direction if needed
+process_image('Jonah/anchorage.jpg')
