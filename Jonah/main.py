@@ -33,7 +33,7 @@ def process_image(image_path):
 
     # Check if the image should be inverted
     if np.mean(opening) < 150:  # If the average intensity is less than 127, invert
-        gray = cv2.bitwise_not(opening)
+        opening = cv2.bitwise_not(opening)
 
     # Find contours of the objects in the cleaned binary image
     contours = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
